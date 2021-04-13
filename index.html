@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <style>
+     .slideshow {
+       width: 100%;
+       height: 400px;
+       position: relative;
+       overflow:hidden;
+     }
+
+     .slideshow > div {
+       position: absolute;
+       top: 0;
+       left: 0;
+       background-size: cover;
+       width: 500px;
+       height: 100%;
+     }
+    </style>
+  </head>
+  <body style="background: black; margin: 0">
+    <div id="a" class="slideshow"></div>
+    <div id="b" class="slideshow"></div>
+    <div id="c" class="slideshow"></div>
+  </body>
+  <script>
+   class ScrollList {
+     constructor(el, sengis, direction, magnitude) {
+       this.sengiEls = [];
+       this.direction = direction;
+       this.magnitude = magnitude;
+
+       for (let i = 0; i < 3; i++) {
+         for (const sengi of sengis) {
+           const sengiEl = document.createElement('div');
+           sengiEl.style.backgroundImage = `url('./${sengi}`;
+           this.sengiEls.push(sengiEl);
+           el.appendChild(sengiEl);
+         }
+       }
+
+       let offset = -500;
+       for (let i = 0; i < this.sengiEls.length; i++) {
+         this.sengiEls[i].dataset.offset = offset;
+         this.sengiEls[i].style.left = `${offset}px`;
+         offset += 500;
+       }
+     }
+
+     tick() {
+       for (const sengiEl of this.sengiEls) {
+         let offset = parseInt(sengiEl.dataset.offset);
+         offset += this.direction * this.magnitude;
+         if (offset === -1000) {
+           offset = 500 * (this.sengiEls.length - 2);
+         } else if (offset === 500 * (this.sengiEls.length - 1)) {
+           offset = -500;
+         }
+         sengiEl.dataset.offset = offset;
+         sengiEl.style.left = `${offset}px`;
+       }
+     }
+   }
+
+   const lists = [
+     new ScrollList(document.getElementById('a'), ['sengi-01.jpg', 'sengi-02.jpg', 'sengi-03.jpg', 'sengi-04.jpg', 'sengi-05.jpg'], 1, 2),
+     new ScrollList(document.getElementById('b'), ['sengi-06.jpg', 'sengi-07.jpg', 'sengi-08.jpg', 'sengi-09.jpg', 'sengi-10.jpg'], -1, 2),
+     new ScrollList(document.getElementById('c'), ['sengi-11.jpg', 'sengi-12.jpg', 'sengi-13.jpg', 'sengi-14.jpg', 'sengi-15.jpg', 'sengi-16.jpg'], 1, 2),
+   ]; 
+
+   setInterval(function () {
+     for (const list of lists) {
+       list.tick();
+     }
+   }, 1);
+  </script>
+</html>
