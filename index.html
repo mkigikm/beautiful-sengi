@@ -32,43 +32,44 @@
   </body>
   <script>
    class ScrollList {
-     constructor(el, sengis, direction, magnitude) {
+     constructor(el, sengis, widths, direction, magnitude) {
        this.sengiEls = [];
        this.direction = direction;
        this.magnitude = magnitude;
        this.ticks = 0;
+       this.totalWidth = 0;
 
        for (let i = 0; i < 3; i++) {
-         for (const sengi of sengis) {
+         for (let j = 0; j < sengis.length; j++) {
            const sengiEl = document.createElement('div');
-           sengiEl.style.backgroundImage = `url('./${sengi}`;
+           sengiEl.style.backgroundImage = `url('./${sengis[j]}`;
+           sengiEl.style.width = `${widths[j]}px`;
+           sengiEl.dataset.width = widths[j];
            this.sengiEls.push(sengiEl);
            el.appendChild(sengiEl);
+           this.totalWidth += widths[j];
          }
        }
 
-       let offset = -500;
+       let offset = direction > 0 ? -widths[0] : 0;
        for (let i = 0; i < this.sengiEls.length; i++) {
          this.sengiEls[i].dataset.offset = offset;
          this.sengiEls[i].dataset.rotate = 0;
          this.sengiEls[i].style.left = `${offset}px`;
-         offset += 500;
+         offset += parseInt(this.sengiEls[i].dataset.width);
        }
      }
 
      tick() {
        this.ticks += 1;
+       let minSengi = this.sengiEls[0];
+       let maxSengi = this.sengiEls[0];
+
        for (const sengiEl of this.sengiEls) {
          let offset = parseInt(sengiEl.dataset.offset);
          offset += this.direction * this.magnitude;
-         if (offset === -1000) {
-           offset = 500 * (this.sengiEls.length - 2);
-         } else if (offset === 500 * (this.sengiEls.length - 1)) {
-           offset = -500;
-         }
          sengiEl.dataset.offset = offset;
          sengiEl.style.left = `${offset}px`;
-
 
          let rotate = parseInt(sengiEl.dataset.rotate);
          if (rotate !== 0 || Math.random() < 0.0002) {
@@ -79,14 +80,51 @@
            sengiEl.style.transform = `rotate(${rotate}deg)`;
            sengiEl.dataset.rotate = rotate;
          }
+
+         if (offset < parseInt(minSengi.dataset.offset)) {
+           minSengi = sengiEl;
+         }
+         if (offset > parseInt(maxSengi.dataset.offset)) {
+           maxSengi = sengiEl;
+         }
+       }
+
+       if (this.direction > 0 && parseInt(minSengi.dataset.offset) >= 0) {
+         let offset = parseInt(minSengi.dataset.offset) - parseInt(maxSengi.dataset.width);
+         maxSengi.dataset.offset = offset;
+         maxSengi.style.left = `${offset}px`;
+       }
+
+       if (this.direction < 0 && parseInt(minSengi.dataset.offset) + parseInt(minSengi.dataset.width) < 0) {
+         let offset = parseInt(maxSengi.dataset.offset) + parseInt(maxSengi.dataset.width);
+         minSengi.dataset.offset = offset;
+         minSengi.style.left = `${offset}px`;
        }
      }
    }
 
    const lists = [
-     new ScrollList(document.getElementById('a'), ['sengi-01.jpg', 'sengi-02.jpg', 'sengi-03.jpg', 'sengi-04.jpg', 'sengi-05.jpg'], 1, 2),
-     new ScrollList(document.getElementById('b'), ['sengi-06.jpg', 'sengi-07.jpg', 'sengi-08.jpg', 'sengi-09.jpg', 'sengi-10.jpg'], -1, 2),
-     new ScrollList(document.getElementById('c'), ['sengi-11.jpg', 'sengi-12.jpg', 'sengi-13.jpg', 'sengi-14.jpg', 'sengi-15.jpg', 'sengi-16.jpg'], 1, 2),
+     new ScrollList(
+       document.getElementById('a'),
+       ['sengi-01.jpg', 'sengi-02.jpg', 'sengi-03.jpg', 'sengi-04.jpg', 'sengi-05.jpg'],
+       [600, 533, 400, 711, 600],
+       1,
+       2,
+     ),
+     new ScrollList(
+       document.getElementById('b'),
+       ['sengi-06.jpg', 'sengi-07.jpg', 'sengi-08.jpg', 'sengi-09.jpg', 'sengi-10.jpg'],
+       [602, 711, 713, 284, 600],
+       -1,
+       2,
+     ),
+     new ScrollList(
+       document.getElementById('c'),
+       ['sengi-11.jpg', 'sengi-12.jpg', 'sengi-13.jpg', 'sengi-14.jpg', 'sengi-15.jpg', 'sengi-16.jpg'],
+       [711, 320, 400, 533, 600, 600],
+       1,
+       2
+     ),
    ]; 
 
    setInterval(function () {
