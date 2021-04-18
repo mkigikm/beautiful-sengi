@@ -26,9 +26,7 @@
     </style>
   </head>
   <body>
-    <div id="a" class="slideshow"></div>
-    <div id="b" class="slideshow"></div>
-    <div id="c" class="slideshow"></div>
+    <div id="sengi-holder"></div>
     <audio loop src="beautiful_girl.mp3"></audio>
     <script>
       class ScrollList {
@@ -103,29 +101,32 @@
         }
       }
 
-      const lists = [
-        new ScrollList(
-          document.getElementById('a'),
+      const sengiLists = [
+        [
           ['sengi-01.jpg', 'sengi-02.jpg', 'sengi-03.jpg', 'sengi-04.jpg', 'sengi-05.jpg'],
           [600, 533, 400, 711, 600],
-          1,
-          2,
-        ),
-        new ScrollList(
-          document.getElementById('b'),
+        ],
+        [
           ['sengi-06.jpg', 'sengi-07.jpg', 'sengi-08.jpg', 'sengi-09.jpg', 'sengi-10.jpg'],
           [602, 711, 713, 284, 600],
-          -1,
-          2,
-        ),
-        new ScrollList(
-          document.getElementById('c'),
+        ],
+        [
           ['sengi-11.jpg', 'sengi-12.jpg', 'sengi-13.jpg', 'sengi-14.jpg', 'sengi-15.jpg', 'sengi-16.jpg'],
           [711, 320, 400, 533, 600, 600],
-          1,
-          2
-        ),
-      ]; 
+        ],
+      ];
+
+      let direction = 1;
+      let sengiIndex = 0;
+      const lists = [];
+      for (let i = 0; i < Math.ceil(document.documentElement.clientHeight / 400); i++) {
+        const el = document.createElement('div');
+        el.className = 'slideshow';
+        document.getElementById('sengi-holder').appendChild(el);
+        lists.push(new ScrollList(el, sengiLists[sengiIndex][0], sengiLists[sengiIndex][1], direction, 2));
+        sengiIndex = (sengiIndex + 1) % 3;
+        direction *= -1;
+      }
 
       setInterval(function () {
         for (const list of lists) {
